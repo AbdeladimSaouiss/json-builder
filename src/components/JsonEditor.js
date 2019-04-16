@@ -31,19 +31,25 @@ let json = [
     {
         name: "object1",
         type: "object",
-        value: {
-            name: "object1Sub1",
-            type: "object",
-            value: {
-                name: "object1Sub1Sub1",
+        value: [
+            {
+                name: "object1Sub1",
                 type: "object",
-                value: {
-                    name: "Object1 nested string",
-                    type: "string",
-                    value: "bar"
-                }
+                value: [
+                    {
+                        name: "object1Sub1Sub1",
+                        type: "object",
+                        value: [
+                            {
+                                name: "Object1 nested string",
+                                type: "string",
+                                value: "bar"
+                            }
+                        ]
+                    }
+                ] 
             }
-        }
+        ]
     },
     {
         name: "Array",
@@ -58,6 +64,22 @@ let json = [
                 name: "array Boolean",
                 type: "boolean",
                 value: true,
+            },
+            {
+                name: "SubArray",
+                type: "array",
+                value: [
+                    {
+                        name: "array number",
+                        type: "number",
+                        value: 17
+                    },
+                    {
+                        name: "array Boolean",
+                        type: "string",
+                        value: "subarray",
+                    }
+                ]
             }
         ]
     }
@@ -77,7 +99,24 @@ class JsonEditor extends Component {
         }
     }
 
-
+    recursiveLog = (json) => {
+        // test recusivity here
+        // console.log(json);
+        json.forEach(item => {
+            if(item.type === "array" || item.type === "object"){
+                this.recursiveLog(item.value);
+            } 
+            
+            if(item.type === "string" || item.type === "boolean" || item.type === "number") {
+                console.log(item.value)
+            }
+        })
+    }
+    componentDidMount = () => {
+        console.log("mounted");
+        // let json = this.state.json;
+        // this.recursiveLog(json);
+    }
     handleItemChange = (e) => {
         console.log("We handle input change here");
         console.log(e.target.value);
@@ -107,14 +146,6 @@ class JsonEditor extends Component {
                 {/* <JsonBlock /> */}
                 {/* {this.insertItem()} */}
                 {ItemsTable}
-
-                <select className="browser-default" name="type" id="" onChange={this.handleItemChange} >
-                    <option value="string">Text</option>
-                    <option value="boolean">Boolean</option>
-                    <option value="number">Number</option>
-                    <option value="object">Structure</option>
-                    <option value="array">Array</option>
-                </select>
             </div>
         );
     }

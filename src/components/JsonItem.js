@@ -1,15 +1,13 @@
 import React from 'react';
 
 var JsonItem = ({ item, handleItemChange }) => {
-    console.log(item);
-    console.log(handleItemChange);
     return (
         <div className="item-row row">
             <div className="first-col col s7">
-                <input type="text" name="name" id="" placeholder="Enter name" onChange={handleItemChange} value={item.name && item.name} />
+                <input type="text" name="name" id="" placeholder="Enter name" onChange={handleItemChange} defaultValue={item.name && item.name} />
             </div>
             <div className="col s2">
-                <select name="type" id="" onChange={() => console.log("Change fired")} value={item.type && item.type}>
+                <select className="browser-default" name="type" id="" onChange={handleItemChange} defaultValue={item.type && item.type}>
                     <option value="string">Text</option>
                     <option value="boolean">Boolean</option>
                     <option value="number">Number</option>
@@ -19,7 +17,7 @@ var JsonItem = ({ item, handleItemChange }) => {
             </div>
             <div className="col s2">
                 {(item.type === "string" || item.type === "boolean" || item.type === "number") ?
-                    <input type="text" name="value" id="" placeholder="Enter value" onChange={handleItemChange} value={item.value} />
+                    <input type="text" name="value" id="" placeholder="Enter value" onChange={handleItemChange} defaultValue={item.value} />
                     : ""
                 }
             </div>
