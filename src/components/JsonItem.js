@@ -1,6 +1,6 @@
 import React from 'react';
 
-var JsonItem = ({ item, handleItemChange }) => {
+var JsonItem = ({ item, handleItemChange, deleteItem }) => {
     return (
         <div className="item-row row">
             <div className="first-col col s7">
@@ -22,7 +22,7 @@ var JsonItem = ({ item, handleItemChange }) => {
                 }
             </div>
             <div className="col s1">
-                <button>
+                <button onClick={() => deleteItem(item.id)}>
                     <i className="Medium material-icons">delete_forever</i>
                 </button>
             </div>
