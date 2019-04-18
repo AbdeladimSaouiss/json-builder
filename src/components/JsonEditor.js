@@ -7,80 +7,93 @@ import Button from './Button';
 // Libraries
 import ShortUniqueId from 'short-unique-id';
 
-
-let json = [
-    {
-        id:1,
-        name: "string1",
-        type: "string",
-        value: "foo"
-    },
-    {
-        id:11,
-        name: "object1",
-        type: "object",
-        value: [
-            {
-                id:111,
-                name: "object1Sub1",
-                type: "object",
-                value: [
-                    {
-                        id:1111,
-                        name: "object1Sub1Sub1",
-                        type: "object",
-                        value: [
-                            {
-                                id:11111,
-                                name: "Object1 nested string",
-                                type: "string",
-                                value: "bar"
-                            }
-                        ]
-                    }
-                ] 
-            }
-        ]
-    },
-    // {
-    //     id:12,
-    //     name: "Array",
-    //     type: "array",
-    //     value: [
-    //         {
-    //             id:121,
-    //             name: "array number",
-    //             type: "number",
-    //             value: 1
-    //         },
-    //         {
-    //             id:122,
-    //             name: "array Boolean",
-    //             type: "boolean",
-    //             value: true,
-    //         },
-    //         {
-    //             id:123,
-    //             name: "SubArray",
-    //             type: "array",
-    //             value: [
-    //                 {
-    //                     id:1231,
-    //                     name: "array number",
-    //                     type: "number",
-    //                     value: 17
-    //                 },
-    //                 {
-    //                     id:1232,
-    //                     name: "array Boolean",
-    //                     type: "string",
-    //                     value: "subarray",
-    //                 }
-    //             ]
-    //         }
-    //     ]
-    // }
-]
+// let json = [
+//     {
+//         "id": "GXxvTS",
+//         "name": "",
+//         "type": "string",
+//         "value": ""
+//     },
+//     {
+//         "id": "gJDmPO",
+//         "name": "",
+//         "type": "string",
+//         "value": ""
+//     }
+// ]
+// let json = [
+//     {
+//         id:1,
+//         name: "string1",
+//         type: "string",
+//         value: "foo"
+//     },
+//     {
+//         id:11,
+//         name: "object1",
+//         type: "object",
+//         value: [
+//             {
+//                 id:111,
+//                 name: "object1Sub1",
+//                 type: "object",
+//                 value: [
+//                     {
+//                         id:1111,
+//                         name: "object1Sub1Sub1",
+//                         type: "object",
+//                         value: [
+//                             {
+//                                 id:11111,
+//                                 name: "Object1 nested string",
+//                                 type: "string",
+//                                 value: "bar"
+//                             }
+//                         ]
+//                     }
+//                 ] 
+//             }
+//         ]
+//     },
+//     // {
+//     //     id:12,
+//     //     name: "Array",
+//     //     type: "array",
+//     //     value: [
+//     //         {
+//     //             id:121,
+//     //             name: "array number",
+//     //             type: "number",
+//     //             value: 1
+//     //         },
+//     //         {
+//     //             id:122,
+//     //             name: "array Boolean",
+//     //             type: "boolean",
+//     //             value: true,
+//     //         },
+//     //         {
+//     //             id:123,
+//     //             name: "SubArray",
+//     //             type: "array",
+//     //             value: [
+//     //                 {
+//     //                     id:1231,
+//     //                     name: "array number",
+//     //                     type: "number",
+//     //                     value: 17
+//     //                 },
+//     //                 {
+//     //                     id:1232,
+//     //                     name: "array Boolean",
+//     //                     type: "string",
+//     //                     value: "subarray",
+//     //                 }
+//     //             ]
+//     //         }
+//     //     ]
+//     // }
+// ]
 
 
 class JsonEditor extends Component {
@@ -96,19 +109,18 @@ class JsonEditor extends Component {
         }
     }
 
-    recursiveLog = (json) => {
-        json.forEach(item => {
-            if(item.type === "array" || item.type === "object"){
-                this.recursiveLog(item.value);
-            } 
-            
-            if(item.type === "string" || item.type === "boolean" || item.type === "number") {
-                console.log(item.value)
-            }
-        })
-    }
     componentDidMount = () => {
         console.log("mounted");
+        // console.log(localStorage.hasOwnProperty('json'))
+        // let testlocalStorage = Array.isArray(localStorage.hasOwnProperty('json'))
+        // console.log(testlocalStorage);
+        // console.log(typeof localStorage.getItem("json"));
+        // console.log(Array(localStorage.getItem("json")));
+        if (localStorage.hasOwnProperty('json')) {
+            this.setState({
+                json: JSON.parse(localStorage.getItem('json'))
+            })
+        }
     }
 
     // Add new item
@@ -121,10 +133,15 @@ class JsonEditor extends Component {
             value: ""
         }
         let newJson = this.state.json;
+        // push this new item to the json
         newJson.push(newItem);
+        //Set the localstorage to the newJson
+        localStorage.setItem('json', JSON.stringify(newJson));
+
+        // Update the state
         this.setState({
             json: newJson
-        })        
+        });      
     }
 
     addSubItem = (id) => {
@@ -152,7 +169,9 @@ class JsonEditor extends Component {
                 return item;
             })
         } 
-        let newJson = addItem(id, tempJson)
+        let newJson = addItem(id, tempJson);
+        //Set the localstorage to the newJson
+        localStorage.setItem('json', JSON.stringify(newJson));
         // Update the state with new json
         this.setState({
             json: newJson
@@ -186,6 +205,9 @@ class JsonEditor extends Component {
         // Update the element
         let newJson = updateItem(id, key, value, tempJson);
         // console.log(newJson);
+        //Set the localstorage to the newJson
+        localStorage.setItem('json', JSON.stringify(newJson));
+        // Update the state with new json
         this.setState({
             json: newJson
         })
@@ -207,6 +229,8 @@ class JsonEditor extends Component {
         }
         // get the filtered json the item deleted to newJson 
         let newJson = filter(id, tempJson);
+        //Set the localstorage to the newJson
+        localStorage.setItem('json', JSON.stringify(newJson));
         // set the state with the new filtered json
         this.setState({
             json: newJson
