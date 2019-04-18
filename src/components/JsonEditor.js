@@ -1,26 +1,12 @@
 import React, { Component } from 'react';
-import Header from './header';
+// Component 
+import Header from './Header';
 import JsonBlock from './JsonBlock';
+import EmptyBlock from './EmptyBlock';
+import Button from './Button';
+// Libraries
+import ShortUniqueId from 'short-unique-id';
 
-// let json = [
-//     {
-//         string1: "Row 1"
-//     },
-//     {
-//         object1: {
-//             subObject1: {
-//                 subSubSubObject1:{
-//                     object1String: "This is a String"
-//                 }
-//             }
-//         }
-//     },
-//     {
-//         array1: [
-//             "item1", 21, "item2"
-//         ]
-//     }
-// ]
 
 let json = [
     {
@@ -56,44 +42,44 @@ let json = [
             }
         ]
     },
-    {
-        id:12,
-        name: "Array",
-        type: "array",
-        value: [
-            {
-                id:121,
-                name: "array number",
-                type: "number",
-                value: 1
-            },
-            {
-                id:122,
-                name: "array Boolean",
-                type: "boolean",
-                value: true,
-            },
-            {
-                id:123,
-                name: "SubArray",
-                type: "array",
-                value: [
-                    {
-                        id:1231,
-                        name: "array number",
-                        type: "number",
-                        value: 17
-                    },
-                    {
-                        id:1232,
-                        name: "array Boolean",
-                        type: "string",
-                        value: "subarray",
-                    }
-                ]
-            }
-        ]
-    }
+    // {
+    //     id:12,
+    //     name: "Array",
+    //     type: "array",
+    //     value: [
+    //         {
+    //             id:121,
+    //             name: "array number",
+    //             type: "number",
+    //             value: 1
+    //         },
+    //         {
+    //             id:122,
+    //             name: "array Boolean",
+    //             type: "boolean",
+    //             value: true,
+    //         },
+    //         {
+    //             id:123,
+    //             name: "SubArray",
+    //             type: "array",
+    //             value: [
+    //                 {
+    //                     id:1231,
+    //                     name: "array number",
+    //                     type: "number",
+    //                     value: 17
+    //                 },
+    //                 {
+    //                     id:1232,
+    //                     name: "array Boolean",
+    //                     type: "string",
+    //                     value: "subarray",
+    //                 }
+    //             ]
+    //         }
+    //     ]
+    // }
 ]
 
 
@@ -105,14 +91,12 @@ class JsonEditor extends Component {
             name: '',
             type: '',
             value:'',
-            json,
+            json: [],
             insertItem: true
         }
     }
 
     recursiveLog = (json) => {
-        // test recusivity here
-        // console.log(json);
         json.forEach(item => {
             if(item.type === "array" || item.type === "object"){
                 this.recursiveLog(item.value);
@@ -125,23 +109,96 @@ class JsonEditor extends Component {
     }
     componentDidMount = () => {
         console.log("mounted");
-        // let json = this.state.json;
-        // this.recursiveLog(json);
-    }
-    handleItemChange = (e) => {
-        console.log("We handle input change here");
-        console.log(e.target.value);
     }
 
+    // Add new item
+    addItem = () => {
+        const uid = new ShortUniqueId();
+        let newItem = {
+            id: uid.randomUUID(6),
+            name: "",
+            type: "string",
+            value: ""
+        }
+        let newJson = this.state.json;
+        newJson.push(newItem);
+        this.setState({
+            json: newJson
+        })        
+    }
 
+    addSubItem = (id) => {
+        // Get the current state
+        let tempJson = this.state.json; 
+        // Add subitem if current item match the id and is an array/object, otherwise recurse to next sublevel
+        let addItem = (id, array) => {
+            // map the array and add subitem to the Array/Object children
+            return array.map(item => {
+                if (item.id === id && (item.type === "array" || item.type === "object")){
+                    const uid = new ShortUniqueId();
+                    let newItem = {
+                        id: uid.randomUUID(6),
+                        name: "",
+                        type: "string",
+                        value: ""
+                    }
+                    item.value.push(newItem);
+                    return item
+                } 
+                if (item.id !== id && (item.type === "array" || item.type === "object")) {
+                    // recursion here
+                    addItem(id, item.value)
+                }
+                return item;
+            })
+        } 
+        let newJson = addItem(id, tempJson)
+        // Update the state with new json
+        this.setState({
+            json: newJson
+        })
+    }
+
+    // Change item value
+    handleItemChange = (id, key, value) => {
+        // Get the current state
+        let tempJson = this.state.json;
+        // find the element by its ID
+        let updateItem = (id, key, value, array) => {
+            return array.map(item => {
+                // if the id match the item Id in the state, update it
+                if (item.id === id) {
+                    item[key] = value;
+                    // If the value is an arry/object, update the value of that item(object) to be an array instead of a string
+                    if (value === "array" || value === "object"){
+                        item["value"] = []
+                    }
+                    return item;
+                } 
+                if (item.id !== id && (item.type === "array" || item.type === "object") && item.value.length !== 0) {
+                    // if the element is an array or object and doesn't match the ID, Recurse inside it
+                    updateItem(id, key, value, item.value)
+                }
+                return  item;
+            });
+
+         }
+        // Update the element
+        let newJson = updateItem(id, key, value, tempJson);
+        // console.log(newJson);
+        this.setState({
+            json: newJson
+        })
+
+    }
     // Delete Item from Json
     deleteItem = (id) => {
         // Get the state and pass it to filter function
-        let json = this.state.json;
+        let tempJson = this.state.json;
         // filter function that calls itself recursively if the item is an array or object
         let filter = (id, array) => {
             return array.filter(item => {
-                if(item.id !== id && (item.type === "array" || item.type === "object")){
+                if (item.id !== id && (item.type === "array" || item.type === "object") && item.value.length !== 0){
                 // The recursive call here with the subarray/subobject as argument
                     return item.value = filter(id, item.value);
                 }
@@ -149,7 +206,7 @@ class JsonEditor extends Component {
             })
         }
         // get the filtered json the item deleted to newJson 
-        let newJson = filter(id, json);
+        let newJson = filter(id, tempJson);
         // set the state with the new filtered json
         this.setState({
             json: newJson
@@ -161,26 +218,21 @@ class JsonEditor extends Component {
         // If this.state.json is empty => show A jsonblock coponent
         // Else Show this.state.json
         let ItemsTable = (this.state.json.length !== 0)
-                        ? this.state.json.map((item, index) => {
-                            return <JsonBlock 
-                                key={item.id} 
-                                item={item}
-                                handleItemChange={this.handleItemChange}
-                                deleteItem={this.deleteItem}
-
-                            />
-                        })
-                        : <JsonBlock />
-        // OnAdd set the new jsonItem to this.state.json and update feed component with data
-        // Delete Items using filter methode
-        // Manage recursion on Child enlements
+            ? this.state.json.map((item, index) => {
+                return <JsonBlock 
+                    key={item.id} 
+                    item={item}
+                    handleItemChange={this.handleItemChange}
+                    deleteItem={this.deleteItem}
+                    addSubItem={this.addSubItem}
+                />
+            })
+            : <EmptyBlock />
 
         return (
             <div className="json-editor">
-                {/* <button onClick={() => this.updateinsertItem()} className="waves-light btn-large">Add Item</button> */}
-                <Header />
-                {/* <JsonBlock /> */}
-                {/* {this.insertItem()} */}
+                <Button content="Add Json Item" addItem={this.addItem} />
+                {(this.state.json.length !== 0) && <Header />}
                 {ItemsTable}
             </div>
         );

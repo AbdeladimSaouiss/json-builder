@@ -13,3 +13,9 @@
 .item-holder.child .first-col{
   padding-left: 40px;
 }
+
+.empty-bloc{
+  margin-top: 50px;
+  padding: 120px;
+  text-align: center;
+}
